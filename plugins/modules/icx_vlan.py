@@ -387,6 +387,7 @@ commands:
 
 # use 'raise Exception(variable)' and run the playbook with -vvv to debug
     
+import json
 import re
 from time import sleep
 import itertools
@@ -598,7 +599,10 @@ def map_obj_to_commands(updates, module):
                 if untagged:
                     if untagged['name']:
                         for item in untagged['name']:
-                            commands.append('untagged {0}'.format(item))
+                            if 'router-interface' in item:
+                                commands.append('{0}'.format(item))
+                            else: 
+                                commands.append('untagged {0}'.format(item))
                             
                 # if untagged['purge'] is True:
                 #     want_untagged = list()
@@ -766,6 +770,7 @@ def map_obj_to_commands(updates, module):
             obj_in_want = search_obj_in_list(h, want)
             if not obj_in_want and h != '1':
                 commands.append('no vlan {0}'.format(h))
+        
     return commands
 
 def parse_name_argument(module, item):
@@ -935,6 +940,8 @@ def main():
     result['have'] = have
     commands = map_obj_to_commands((want, have), module)
     result['commands'] = commands
+    # with open('command-data.json', 'a') as json_file:
+    #       json.dump(commands, json_file, indent=4)
 
     # send commands to ICX and present results
     if commands:
