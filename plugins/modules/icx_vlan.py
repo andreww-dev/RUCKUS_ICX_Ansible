@@ -674,18 +674,21 @@ def map_obj_to_commands(updates, module):
                     if untagged['name']:
                         have_untagged = list()
                         for interface in untagged['name']:
-                            low, high = extract_list_from_interface(interface)
-                            while(high >= low):
-                                if 'ethernet' in interface:
-                                    if 'to' in interface:
-                                        temp = interface.split('to')[0]
-                                        untaggedSplit = temp.rsplit('/', 1)
-                                    else:
-                                        untaggedSplit = interface.rsplit('/', 1)
-                                    have_untagged.append(untaggedSplit[0] + '/' + '{0}'.format(low))
-                                if 'lag' in interface:
-                                    have_untagged.append('lag {0}'.format(low))
-                                low = low + 1
+                            if 'router-interface' in interface:
+                                continue
+                            else:
+                              low, high = extract_list_from_interface(interface)
+                              while(high >= low):
+                                  if 'ethernet' in interface:
+                                      if 'to' in interface:
+                                          temp = interface.split('to')[0]
+                                          untaggedSplit = temp.rsplit('/', 1)
+                                      else:
+                                          untaggedSplit = interface.rsplit('/', 1)
+                                      have_untagged.append(untaggedSplit[0] + '/' + '{0}'.format(low))
+                                  if 'lag' in interface:
+                                      have_untagged.append('lag {0}'.format(low))
+                                  low = low + 1
                     if untagged['purge'] is True:
                         remove_untagged = list(set(obj_in_have['untagged']) - set(have_untagged))
                         for item in remove_untagged:
@@ -700,7 +703,10 @@ def map_obj_to_commands(updates, module):
                     elif untagged['name']:
                         add_untagged = list(set(have_untagged) - set(obj_in_have['untagged']))
                         for item in add_untagged:
-                            commands.append('untagged {0}'.format(item))
+                            if 'router-interface' in item:
+                              commands.append('{0}'.format(item))
+                            else:
+                              commands.append('untagged {0}'.format(item))
 
                 # create lines to add tagged interfaces
                 if tagged:
