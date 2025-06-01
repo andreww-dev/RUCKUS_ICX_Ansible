@@ -65,7 +65,7 @@ class TerminalModule(TerminalBase):
 
     def __del__(self):
         try:
-            self.close()
+            self._connection.close()
         except AnsibleConnectionFailure:
             raise AnsibleConnectionFailure('unable to set terminal parameters')
 
